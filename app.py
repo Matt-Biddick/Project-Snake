@@ -9,6 +9,7 @@ class MAIN:
     def update(self):
         self.snake.move_snake()
         self.check_collision()
+        self.check_fail()
     
     def draw_elements(self):
         self.snake.draw_snake()
@@ -18,6 +19,18 @@ class MAIN:
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.add_block()
+    
+    def check_fail (self):
+        if not 0 <= self.snake.body[0].x <= cell_number -1 or not 0 <= self.snake.body[0].y <= cell_number -1:
+            self.game_over()
+        
+        for block in self.snake.body[1:]:
+            if block == self.snake.body[0]:
+                self.game_over()
+
+    def game_over(self):
+        pygame.quit()
+        sys.exit()
 
 class SNAKE:
     def __init__(self):
