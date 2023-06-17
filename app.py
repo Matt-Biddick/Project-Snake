@@ -156,7 +156,6 @@ class SNAKE:
         self.body = [Vector2(5,10), Vector2(4,10), Vector2(3,10)]
         self.direction = Vector2(0,0)
 
-
 class FRUIT:
     def __init__(self):
         self.randomize()
@@ -212,4 +211,3 @@ while True:
     main_game.draw_elements()
     pygame.display.update()
     clock.tick(60)
-    
