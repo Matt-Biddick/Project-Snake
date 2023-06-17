@@ -8,10 +8,16 @@ class MAIN:
 
     def update(self):
         self.snake.move_snake()
+        self.check_collision()
     
     def draw_elements(self):
         self.snake.draw_snake()
         self.fruit.draw_fruit()
+    
+    def check_collision(self):
+        if self.fruit.pos == self.snake.body[0]:
+            self.fruit.randomize()
+            # make snek long
 
 class SNAKE:
     def __init__(self):
@@ -32,13 +38,16 @@ class SNAKE:
 
 class FRUIT:
     def __init__(self):
-        self.x = random.randint(0, cell_number - 1)
-        self.y = random.randint(0, cell_number - 1)
-        self.pos = Vector2(self.x,self.y)
+        self.randomize()
     
     def draw_fruit(self):
         fruit_rect = pygame.Rect(self.pos.x * cell_size, self.pos.y * cell_size, cell_size, cell_size)
         pygame.draw.rect(screen, (200,50,50), fruit_rect)
+    
+    def randomize(self):
+        self.x = random.randint(0, cell_number - 1)
+        self.y = random.randint(0, cell_number - 1)
+        self.pos = Vector2(self.x,self.y)
 
 # Initialize the pygame module and set tickrate
 pygame.init()
