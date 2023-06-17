@@ -21,6 +21,11 @@ class MAIN:
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.add_block()
+            self.snake.play_crunch_sound()
+
+        for block in self.snake.body[1:]:
+            if block == self.fruit.pos:
+                self.fruit.randomize()
     
     def check_fail (self):
         if not 0 <= self.snake.body[0].x <= cell_number -1 or not 0 <= self.snake.body[0].y <= cell_number -1:
@@ -31,8 +36,7 @@ class MAIN:
                 self.game_over()
 
     def game_over(self):
-        pygame.quit()
-        sys.exit()
+        self.snake.reset()
     
     def draw_grass(self):
         grass_color = (167,209,61)
@@ -65,7 +69,7 @@ class MAIN:
 class SNAKE:
     def __init__(self):
         self.body = [Vector2(5,10), Vector2(4,10), Vector2(3,10)]
-        self.direction = Vector2(1,0)
+        self.direction = Vector2(0,0)
         self.new_block = False
     
         self.head_up = pygame.image.load('Graphics/head_up.png').convert_alpha()
@@ -85,6 +89,7 @@ class SNAKE:
         self.body_tl = pygame.image.load('Graphics/body_tl.png').convert_alpha()
         self.body_br = pygame.image.load('Graphics/body_br.png').convert_alpha()
         self.body_bl = pygame.image.load('Graphics/body_bl.png').convert_alpha()
+        self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -130,9 +135,6 @@ class SNAKE:
         elif tail_relation == Vector2(0,1): self.tail = self.tail_up
         elif tail_relation == Vector2(0,-1): self.tail = self.tail_down
 
-
-
-    
     def move_snake(self):
         if self.new_block == True:
             body_copy = self.body[:]
@@ -146,6 +148,14 @@ class SNAKE:
     
     def add_block(self):
         self.new_block = True
+
+    def play_crunch_sound(self):
+        self.crunch_sound.play()
+    
+    def reset(self):
+        self.body = [Vector2(5,10), Vector2(4,10), Vector2(3,10)]
+        self.direction = Vector2(0,0)
+
 
 class FRUIT:
     def __init__(self):
