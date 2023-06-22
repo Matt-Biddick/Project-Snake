@@ -1,12 +1,22 @@
 import pygame, sys, random
 from pygame.math import Vector2
 from pygame import mixer
+from os import path
 
 
 class MAIN:
     def __init__(self):
         self.snake = SNAKE()
         self.fruit = FRUIT()
+        self.running_score = 0
+
+    def load_data(self):
+        self.dir = path.dirname(__file__)
+        with open(path.join(self.dir, "highscore.txt"), "r") as f:
+            try:
+                self.highscore = int(f.read())
+            except:
+                self.highscore = 0
 
     def update(self):
         self.snake.move_snake()
@@ -18,6 +28,7 @@ class MAIN:
         self.snake.draw_snake()
         self.fruit.draw_fruit()
         self.draw_score()
+        self.draw_highscore()
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
@@ -42,6 +53,10 @@ class MAIN:
 
     def game_over(self):
         self.snake.reset()
+        if self.running_score > self.highscore:
+            self.highscore = self.running_score
+            with open(path.join(self.dir, "highscore.txt"), "w") as f:
+                f.write(str(self.running_score))
 
     def draw_grass(self):
         grass_color = (167, 209, 61)
@@ -79,6 +94,16 @@ class MAIN:
         screen.blit(score_surface, score_rect)
         screen.blit(apple, apple_rect)
         pygame.draw.rect(screen, (56, 74, 12), bg_rect, 2)
+
+        self.running_score = int(score_text)
+
+    def draw_highscore(self):
+        highscore_text = "HIGH SCORE: " + str(self.highscore)
+        highscore_surface = game_font.render(highscore_text, True, (0, 0, 0))
+        highscore_x = int(cell_size * (cell_number / 2))
+        highscore_y = 60
+        highscore_rect = highscore_surface.get_rect(center=(highscore_x, highscore_y))
+        screen.blit(highscore_surface, highscore_rect)
 
 
 class SNAKE:
@@ -234,6 +259,8 @@ SCREEN_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(SCREEN_UPDATE, 120)
 
 main_game = MAIN()
+
+main_game.load_data()
 
 mixer.init()
 mixer.music.load("Sound/Neon-Metaphor.ogg")
