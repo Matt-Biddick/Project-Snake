@@ -12,10 +12,11 @@ class MAIN:
 
     def load_data(self):
         self.dir = path.dirname(__file__)
-        with open(path.join(self.dir, "highscore.txt"), "r") as f:
-            try:
+        try:
+            with open(path.join(self.dir, "highscore.txt"), "r") as f:
                 self.highscore = int(f.read())
-            except:
+        except:
+            with open(path.join(self.dir, "highscore.txt"), "w") as f:
                 self.highscore = 0
 
     def update(self):
