@@ -1,4 +1,4 @@
-import pygame, sys, random
+import pygame, sys, random, button
 from pygame.math import Vector2
 from pygame import mixer
 from os import path
@@ -224,6 +224,7 @@ class SNAKE:
 
     def play_crunch_sound(self):
         self.crunch_sound.play()
+        self.crunch_sound.set_volume(0.2)
 
     def reset(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
@@ -239,7 +240,6 @@ class FRUIT:
             self.pos.x * cell_size, self.pos.y * cell_size, cell_size, cell_size
         )
         screen.blit(apple, fruit_rect)
-        # pygame.draw.rect(screen, (200,50,50), fruit_rect)
 
     def randomize(self):
         self.x = random.randint(0, cell_number - 1)
@@ -247,29 +247,81 @@ class FRUIT:
         self.pos = Vector2(self.x, self.y)
 
 
-# Initialize the pygame module and set tickrate
+# initialize pygame and mixer
 pygame.init()
+mixer.init()
+
+mixer.music.load("Sound/Neon-Metaphor.ogg")
+mixer.music.play()
+pygame.mixer.music.set_volume(0.1)
+
+# create game window
 cell_size = 40
 cell_number = 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+
+# game variables
+main_game = MAIN()
+game_paused = False
+menu_state = "main"
 clock = pygame.time.Clock()
 apple = pygame.image.load("Graphics/apple.png").convert_alpha()
+
+# define fonts
 game_font = pygame.font.Font("Font/PoetsenOne-Regular.ttf", 25)
+
+# load button images
+resume_img = pygame.image.load("Graphics/button_resume.png").convert_alpha()
+options_img = pygame.image.load("Graphics/button_options.png").convert_alpha()
+quit_img = pygame.image.load("Graphics/button_quit.png").convert_alpha()
+video_img = pygame.image.load("Graphics/button_video.png").convert_alpha()
+audio_img = pygame.image.load("Graphics/button_audio.png").convert_alpha()
+keys_img = pygame.image.load("Graphics/button_keys.png").convert_alpha()
+back_img = pygame.image.load("Graphics/button_back.png").convert_alpha()
+
+# create button instances
+resume_button = button.Button(304, 225, resume_img, 1)
+options_button = button.Button(297, 350, options_img, 1)
+quit_button = button.Button(336, 475, quit_img, 1)
+video_button = button.Button(226, 175, video_img, 1)
+audio_button = button.Button(225, 300, audio_img, 1)
+keys_button = button.Button(246, 425, keys_img, 1)
+back_button = button.Button(332, 550, back_img, 1)
 
 SCREEN_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(SCREEN_UPDATE, 120)
 
-main_game = MAIN()
-
+# load scores beforehand
 main_game.load_data()
 
-mixer.init()
-mixer.music.load("Sound/Neon-Metaphor.ogg")
-mixer.music.play()
+# game loop
+run = True
+while run:
+    screen.fill((175, 215, 70))
 
-# Main game loop
-while True:
-    # Event loop
+    # check if paused
+    if game_paused == True:
+        # check menu state
+        if menu_state == "main":
+            if resume_button.draw(screen):
+                game_paused = False
+            if options_button.draw(screen):
+                menu_state = "options"
+            if quit_button.draw(screen):
+                run = False
+        if menu_state == "options":
+            if video_button.draw(screen):
+                print("Video settings")
+            if audio_button.draw(screen):
+                print("Audio settings")
+            if keys_button.draw(screen):
+                print("Bindings")
+            if back_button.draw(screen):
+                menu_state = "main"
+    else:
+        main_game.draw_elements()
+
+    # event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -277,6 +329,8 @@ while True:
         if event.type == SCREEN_UPDATE:
             main_game.update()
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                game_paused = True
             if event.key == pygame.K_UP:
                 if main_game.snake.direction.y != 1:
                     main_game.snake.direction = Vector2(0, -1)
@@ -290,7 +344,5 @@ while True:
                 if main_game.snake.direction.x != -1:
                     main_game.snake.direction = Vector2(1, 0)
 
-    screen.fill((175, 215, 70))
-    main_game.draw_elements()
     pygame.display.update()
     clock.tick(60)
