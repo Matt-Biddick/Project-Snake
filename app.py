@@ -253,17 +253,20 @@ mixer.init()
 
 mixer.music.load("Sound/Neon-Metaphor.ogg")
 mixer.music.play()
-pygame.mixer.music.set_volume(0.1)
+music_volume = 0.1
+pygame.mixer.music.set_volume(music_volume)
 
 # create game window
 cell_size = 40
 cell_number = 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+pygame.display.set_caption("wish.com snake game")
 
 # game variables
 main_game = MAIN()
 game_paused = False
 menu_state = "main"
+clicked = False
 clock = pygame.time.Clock()
 apple = pygame.image.load("Graphics/apple.png").convert_alpha()
 
@@ -303,21 +306,29 @@ while run:
     if game_paused == True:
         # check menu state
         if menu_state == "main":
-            if resume_button.draw(screen):
+            if resume_button.draw(screen) and clicked == False:
                 game_paused = False
-            if options_button.draw(screen):
+                clicked = True
+            if options_button.draw(screen) and clicked == False:
                 menu_state = "options"
-            if quit_button.draw(screen):
+                clicked = True
+            if quit_button.draw(screen) and clicked == False:
                 run = False
+                clicked = True
         if menu_state == "options":
-            if video_button.draw(screen):
+            if video_button.draw(screen) and clicked == False:
                 print("Video settings")
-            if audio_button.draw(screen):
-                print("Audio settings")
-            if keys_button.draw(screen):
+                clicked = True
+            if audio_button.draw(screen) and clicked == False:
+                music_volume -= 0.01
+                pygame.mixer.music.set_volume(music_volume)
+                clicked = True
+            if keys_button.draw(screen) and clicked == False:
                 print("Bindings")
-            if back_button.draw(screen):
+                clicked = True
+            if back_button.draw(screen) and clicked == False:
                 menu_state = "main"
+                clicked = True
     else:
         main_game.draw_elements()
 
@@ -328,6 +339,8 @@ while run:
             sys.exit()
         if event.type == SCREEN_UPDATE:
             main_game.update()
+        if event.type == pygame.MOUSEBUTTONUP:
+            clicked = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 game_paused = True
